@@ -1,1 +1,8 @@
+# venv files
+Scripts/
+Lib/
+Include/
+pyvenv.cfg
+
+# Project files
 *.csv
