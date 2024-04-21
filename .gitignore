@@ -1,5 +1,6 @@
 # venv files
 bin/
+etc/
 lib/
 lib64
 include/
