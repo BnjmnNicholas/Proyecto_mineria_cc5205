@@ -12,3 +12,4 @@ pyvenv.cfg
 
 # Project files
 *.csv
+*.json
