@@ -60,12 +60,7 @@ def encoder(df, encoder_method_name, categorical_cols):
 
 
 def preprocess(df, scaler_method_name, numerical_cols, encoder_method_name, categorical_cols):
-    # drop columns
-    try:
-        df = df.drop(['cliente_mascara_id', 'cadena', 'canal', 'fecha'], axis=1)
-    except:
-        pass
-    df['venta_neta'] = np.log(df['venta_neta'] + 1)  
+
     categorical_cols = [col for col in df.columns if col not in numerical_cols]
     df = scaler(df, scaler_method_name = scaler_method_name, numerical_cols= numerical_cols)
     df = encoder(df, encoder_method_name = encoder_method_name, categorical_cols = categorical_cols)
