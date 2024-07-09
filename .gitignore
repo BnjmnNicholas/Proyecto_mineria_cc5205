@@ -13,3 +13,5 @@ pyvenv.cfg
 # Project files
 *.csv
 *.json
+.vscode/settings.json
+*.png
