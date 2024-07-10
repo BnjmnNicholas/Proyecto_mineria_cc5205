@@ -80,9 +80,9 @@ def k_means_elbow(df, model_name, output_file_path):
     '''
     sse = []
 
-    k_range = list(range(2, 11))
+    k_range = range(2, 11)
     for k in k_range:
-        kmeans = KMeans(n_clusters=k, n_init=10).fit(df)
+        kmeans = KMeans(n_clusters=k, random_state=42).fit(df)
         sse.append(kmeans.inertia_)
 
     optimal_k = k_range[0]
