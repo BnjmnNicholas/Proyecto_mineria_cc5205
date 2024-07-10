@@ -86,18 +86,24 @@ def k_means_elbow(df, model_name, output_file_path):
         sse.append(kmeans.inertia_)
 
     optimal_k = k_range[0]
+    min_sse = float('inf')
     max_sse = float('-inf')
-    for i, p in enumerate(k_range):
-        if 2 <= p <= 8 and sse[i] > max_sse:
+    for i, k in enumerate(k_range[3:10]):
+        sse_before = sse[i-1]
+        sse_after = sse[i+1]
+        dif_before = sse_before - sse[i]
+        dif_after = sse[i] - sse_after
+        if dif_before > max_sse and dif_after < min_sse:
+            min_sse = sse[i]
             max_sse = sse[i]
-            optimal_k = p
+            optimal_k = k
 
     plt.figure(figsize=(10, 6))
     plt.plot(k_range, sse, marker='o')
     plt.xlabel('NÚMERO DE CLUSTERS (k)')
-    plt.ylabel('COEFICIENTE DE SILUETA')
+    plt.ylabel('INERTIA')
     plt.axvline(optimal_k, color='r', linestyle='--', label=f'Optimal k = {optimal_k}')
-    plt.title(f'MÉTODO DE COEF. SILUETA - {model_name}', fontsize=12)
+    plt.title(f'MÉTODO DEL CODO - {model_name}', fontsize=12)
     plt.legend()
     plt.savefig(output_file_path)
     plt.close()
