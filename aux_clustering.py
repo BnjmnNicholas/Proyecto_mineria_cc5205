@@ -86,18 +86,13 @@ def k_means_elbow(df, model_name, output_file_path):
         sse.append(kmeans.inertia_)
 
     optimal_k = k_range[0]
-    min_sse = float('inf')
     max_sse = float('-inf')
     for i, k in enumerate(k_range[3:10]):
         sse_before = sse[i-1]
-        sse_after = sse[i+1]
         dif_before = sse_before - sse[i]
-        dif_after = sse[i] - sse_after
         if dif_before > max_sse:
             max_sse = dif_before
-            if dif_after < min_sse:
-                min_sse = dif_after
-                optimal_k = k
+            optimal_k = k
 
     plt.figure(figsize=(10, 6))
     plt.plot(k_range, sse, marker='o')
