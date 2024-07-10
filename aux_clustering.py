@@ -238,9 +238,8 @@ def dbscan_silhouette(df, model_name, output_file_path):
     k_range = range(2, 11)
     sil = []
     for k in k_range:
-        dbs = DBSCAN(eps=k, min_samples=5)
-        labels = dbs.fit(df)
-        score = silhouette_score(df, labels)
+        dbs = DBSCAN(eps=k, min_samples=5).fit(df)
+        score = silhouette_score(df, dbs.labels_)
         sil.append(score)
 
     optimal_k = k_range[0]
