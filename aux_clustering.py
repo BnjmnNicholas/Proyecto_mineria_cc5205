@@ -71,10 +71,10 @@ def bdscan_knee(df):
     nbrs = NearestNeighbors(n_neighbors=3).fit(df)
     distances = nbrs.kneighbors(df)
 
-    distances = np.sort(distances, axis=0)
+    distances, indices = np.sort(distances, axis=0)
     distances = distances[:,1]
 
-    ax = plt.subplots()
+    fig, ax = plt.subplots()
 
     ax.plot(distances)
 
