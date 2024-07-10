@@ -68,6 +68,43 @@ def preprocess(df, scaler_method_name, numerical_cols, encoder_method_name, cate
     return df
 
 
+def k_means_elbow(df, model_name, output_file_path):
+    '''
+    Utiliza el metodo de la rodilla para determinar el número óptimo de clusters.
+    Parameters:
+        df (pd.DataFrame): Dataframe a utilizar.
+        model_name (str): Nombre del modelo a utilizar.
+        output_file_path (str): Path donde se guardará la visualización.  
+    Returns:
+        optimal_k (int): Número óptimo de clusters.
+    '''
+    sse = []
+
+    k_range = list(range(2, 11))
+    for k in k_range:
+        kmeans = KMeans(n_clusters=k, n_init=10).fit(df)
+        sse.append(kmeans.inertia_)
+
+    optimal_k = k_range[0]
+    max_sse = float('-inf')
+    for i, k in enumerate(k_range):
+        if 2 <= k <= 8 and sse[i] > max_sse:
+            max_sse = sse[i]
+            optimal_k = k
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(k_range, sse, marker='o')
+    plt.xlabel('NÚMERO DE CLUSTERS (k)')
+    plt.ylabel('COEFICIENTE DE SILUETA')
+    plt.axvline(optimal_k, color='r', linestyle='--', label=f'Optimal k = {optimal_k}')
+    plt.title(f'MÉTODO DE COEF. SILUETA - {model_name}', fontsize=12)
+    plt.legend()
+    plt.savefig(output_file_path)
+    plt.close()
+
+    print('knee method visualization saved')
+    return optimal_k
+
 # Nueva version corregida
 def K_means_silhouette(df, model_name, output_file_path):
     '''
