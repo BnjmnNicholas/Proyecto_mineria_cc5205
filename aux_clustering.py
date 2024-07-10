@@ -94,8 +94,8 @@ def k_means_elbow(df, model_name, output_file_path):
         dif_before = sse_before - sse[i]
         dif_after = sse[i] - sse_after
         if dif_before > max_sse and dif_after < min_sse:
-            min_sse = sse[i]
-            max_sse = sse[i]
+            min_sse = dif_after
+            max_sse = dif_before
             optimal_k = k
 
     plt.figure(figsize=(10, 6))
