@@ -93,10 +93,11 @@ def k_means_elbow(df, model_name, output_file_path):
         sse_after = sse[i+1]
         dif_before = sse_before - sse[i]
         dif_after = sse[i] - sse_after
-        if dif_before > max_sse and dif_after < min_sse:
-            min_sse = dif_after
+        if dif_before > max_sse:
             max_sse = dif_before
-            optimal_k = k
+            if dif_after < min_sse:
+                min_sse = dif_after
+                optimal_k = k
 
     plt.figure(figsize=(10, 6))
     plt.plot(k_range, sse, marker='o')
