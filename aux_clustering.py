@@ -67,17 +67,17 @@ def preprocess(df, scaler_method_name, numerical_cols, encoder_method_name, cate
     df = encoder(df, encoder_method_name = encoder_method_name, categorical_cols = categorical_cols)
     return df
 
-def bdscan_knee(df):
+def dbscan_knee(df, output_file_path):
     nbrs = NearestNeighbors(n_neighbors=3).fit(df)
     distances = nbrs.kneighbors(df)
 
     distances, indices = np.sort(distances, axis=0)
     distances = distances[:,1]
 
-    fig, ax = plt.subplots()
-
-    ax.plot(distances)
-
+    plt.figure(figsize=(10, 6))
+    plt.plot(distances[0], distances[1], marker='o')
+    plt.title(f'MÉTODO DE LA RODILLA - {'DBSCAN'}', fontsize=12)
+    plt.savefig(output_file_path)
     return plt.show()
 
 def k_means_elbow(df, model_name, output_file_path):
