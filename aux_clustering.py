@@ -87,10 +87,10 @@ def k_means_elbow(df, model_name, output_file_path):
 
     optimal_k = k_range[0]
     max_sse = float('-inf')
-    for i, k in enumerate(k_range):
-        if 2 <= k <= 8 and sse[i] > max_sse:
+    for i, p in enumerate(k_range):
+        if 2 <= p <= 8 and sse[i] > max_sse:
             max_sse = sse[i]
-            optimal_k = k
+            optimal_k = p
 
     plt.figure(figsize=(10, 6))
     plt.plot(k_range, sse, marker='o')
