@@ -90,7 +90,7 @@ def k_means_elbow(df, model_name, output_file_path):
     for i, k in enumerate(k_range[3:10]):
         sse_before = sse[i-1]
         dif_before = sse_before - sse[i]
-        if dif_before > max_sse:
+        if 2<=k<=8 and dif_before > max_sse:
             max_sse = dif_before
             optimal_k = k
 
