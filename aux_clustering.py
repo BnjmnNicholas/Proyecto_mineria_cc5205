@@ -7,8 +7,9 @@ import seaborn as sns
 import plotly.express as px
 import plotly.io as pio
 from sklearn.preprocessing import StandardScaler, PowerTransformer
-from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
 from sklearn.mixture import GaussianMixture
+from sklearn.neighbors import NearestNeighbors
 import umap.umap_ as umap
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
@@ -185,6 +186,44 @@ def gaussian_mixture_silhouette(df, model_name, output_file_path):
     print('Silhouette score visualization saved')
     return optimal_k
 
+def dbscan_silhouette(df, model_name, output_file_path):
+    """
+    Visualiza el coeficiente de silueta para determinar el número óptimo de clusters.
+    Parameters:
+        df (pd.DataFrame): Dataframe a utilizar.
+        model_name (str): Nombre del modelo a utilizar.
+        output_file_path (str): Path donde se guardará la visualización.
+    Returns:
+        optimal_k (int): Número óptimo de clusters.
+    """
+    k_range = range(2, 11)
+    sil = []
+    for k in k_range:
+        dbs = DBSCAN(eps=k, min_samples=5)
+        labels = dbs.fit(df)
+        score = silhouette_score(df, labels)
+        sil.append(score)
+
+    optimal_k = k_range[0]
+    max_sil = float('-inf')
+    for i, k in enumerate(k_range):
+        if 2 <= k <= 8 and sil[i] > max_sil:
+            max_sil = sil[i]
+            optimal_k = k
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(k_range, sil, marker='o')
+    plt.xlabel('NÚMERO DE CLUSTERS (k)')
+    plt.ylabel('COEFICIENTE DE SILUETA')
+    plt.axvline(optimal_k, color='r', linestyle='--', label=f'Optimal k = {optimal_k}')
+    plt.title(f'MÉTODO DE COEF. SILUETA - {model_name}', fontsize=12)
+    plt.legend()
+    plt.savefig(output_file_path)
+    plt.close()
+
+    print('Silhouette score visualization saved')
+    return optimal_k
+
 
 def silhoutte_method(df, model_name, output_file_path):
     '''
@@ -205,6 +244,8 @@ def silhoutte_method(df, model_name, output_file_path):
         return Agglomerative_silhouette(df, model_name, output_file_path)
     elif model_name == 'GaussianMixture':
         return gaussian_mixture_silhouette(df, model_name, output_file_path)
+    elif model_name == 'DBSCAN':
+        return dbscan_silhouette(df, model_name, output_file_path)
 
 
 
@@ -240,7 +281,12 @@ def get_clusters(df_original, df_scaled, model_name, k):
         df_original_copy['cluster'] = labels
         df_scaled_copy['cluster'] = labels
         return df_original_copy, df_scaled_copy
-    
+    elif model_name == 'DBSCAN':
+        dbs = DBSCAN(eps=k, min_samples=5)
+        labels = dbs.fit(df_scaled_copy)
+        df_original_copy['cluster'] = labels
+        df_scaled_copy['cluster'] = labels
+        return df_original_copy, df_scaled_copy
 
 def get_metrics(df_out, name):
     # Separar las características y los clusters
