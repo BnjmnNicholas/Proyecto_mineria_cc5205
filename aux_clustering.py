@@ -67,10 +67,22 @@ def preprocess(df, scaler_method_name, numerical_cols, encoder_method_name, cate
     df = encoder(df, encoder_method_name = encoder_method_name, categorical_cols = categorical_cols)
     return df
 
+def bdscan_knee(df):
+    nbrs = NearestNeighbors(n_neighbors=3).fit(df)
+    distances = nbrs.kneighbors(df)
+
+    distances = np.sort(distances, axis=0)
+    distances = distances[:,1]
+
+    ax = plt.subplots()
+
+    ax.plot(distances)
+
+    return plt.show()
 
 def k_means_elbow(df, model_name, output_file_path):
     '''
-    Utiliza el metodo de la rodilla para determinar el número óptimo de clusters.
+    Utiliza el metodo del codo para determinar el número óptimo de clusters.
     Parameters:
         df (pd.DataFrame): Dataframe a utilizar.
         model_name (str): Nombre del modelo a utilizar.
@@ -85,27 +97,15 @@ def k_means_elbow(df, model_name, output_file_path):
         kmeans = KMeans(n_clusters=k, random_state=42).fit(df)
         sse.append(kmeans.inertia_)
 
-    optimal_k = k_range[0]
-    max_sse = float('-inf')
-    for i, k in enumerate(k_range[3:10]):
-        sse_before = sse[i-1]
-        dif_before = sse_before - sse[i]
-        if 2<=k<=8 and dif_before > max_sse:
-            max_sse = dif_before
-            optimal_k = k
 
     plt.figure(figsize=(10, 6))
     plt.plot(k_range, sse, marker='o')
     plt.xlabel('NÚMERO DE CLUSTERS (k)')
     plt.ylabel('INERTIA')
-    plt.axvline(optimal_k, color='r', linestyle='--', label=f'Optimal k = {optimal_k}')
     plt.title(f'MÉTODO DEL CODO - {model_name}', fontsize=12)
     plt.legend()
     plt.savefig(output_file_path)
-    plt.close()
-
-    print('knee method visualization saved')
-    return optimal_k
+    return plt.show()
 
 # Nueva version corregida
 def K_means_silhouette(df, model_name, output_file_path):
@@ -225,7 +225,7 @@ def gaussian_mixture_silhouette(df, model_name, output_file_path):
     print('Silhouette score visualization saved')
     return optimal_k
 
-def dbscan_silhouette(df, model_name, output_file_path):
+def dbscan_silhouette(df, eps, model_name, output_file_path):
     """
     Visualiza el coeficiente de silueta para determinar el número óptimo de clusters.
     Parameters:
@@ -235,10 +235,12 @@ def dbscan_silhouette(df, model_name, output_file_path):
     Returns:
         optimal_k (int): Número óptimo de clusters.
     """
+
     k_range = range(2, 11)
     sil = []
     for k in k_range:
-        dbs = DBSCAN(eps=k, min_samples=5).fit(df)
+        dbs = DBSCAN(eps=eps, min_samples=k)
+        dbs.fit(df)
         score = silhouette_score(df, dbs.labels_)
         sil.append(score)
 
@@ -282,8 +284,6 @@ def silhoutte_method(df, model_name, output_file_path):
         return Agglomerative_silhouette(df, model_name, output_file_path)
     elif model_name == 'GaussianMixture':
         return gaussian_mixture_silhouette(df, model_name, output_file_path)
-    elif model_name == 'DBSCAN':
-        return dbscan_silhouette(df, model_name, output_file_path)
 
 
 
@@ -316,12 +316,6 @@ def get_clusters(df_original, df_scaled, model_name, k):
     elif model_name == 'GaussianMixture':
         gmm = GaussianMixture(n_components=k, random_state=42)
         labels = gmm.fit_predict(df_scaled_copy)
-        df_original_copy['cluster'] = labels
-        df_scaled_copy['cluster'] = labels
-        return df_original_copy, df_scaled_copy
-    elif model_name == 'DBSCAN':
-        dbs = DBSCAN(eps=k, min_samples=5)
-        labels = dbs.fit(df_scaled_copy)
         df_original_copy['cluster'] = labels
         df_scaled_copy['cluster'] = labels
         return df_original_copy, df_scaled_copy
