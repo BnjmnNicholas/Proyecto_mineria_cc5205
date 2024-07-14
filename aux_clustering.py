@@ -67,18 +67,21 @@ def preprocess(df, scaler_method_name, numerical_cols, encoder_method_name, cate
     df = encoder(df, encoder_method_name = encoder_method_name, categorical_cols = categorical_cols)
     return df
 
-def dbscan_knee(df, output_file_path):
-    nbrs = NearestNeighbors(n_neighbors=3).fit(df)
-    distances = nbrs.kneighbors(df)
-
-    distances, indices = np.sort(distances, axis=0)
+def dbscan_knee(df, number_neighbours, output_file_path):
+    nbrs = NearestNeighbors(n_neighbors=number_neighbours).fit(df)
+    distances, indices = nbrs.kneighbors(df)
+    
+    distances = np.sort(distances, axis=0)
     distances = distances[:,1]
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(distances[0], distances[1], marker='o')
-    plt.title(f'MÉTODO DE LA RODILLA - {'DBSCAN'}', fontsize=12)
+    
+    fig, ax = plt.subplots()
+    
+    ax.axhline(y=1.4, color='r', linestyle='--') 
+    ax.axvline(x=470.0, color='r', linestyle='--') 
+    ax.plot(distances)
     plt.savefig(output_file_path)
     return plt.show()
+
 
 def k_means_elbow(df, model_name, output_file_path):
     '''
@@ -103,6 +106,7 @@ def k_means_elbow(df, model_name, output_file_path):
     plt.xlabel('NÚMERO DE CLUSTERS (k)')
     plt.ylabel('INERTIA')
     plt.title(f'MÉTODO DEL CODO - {model_name}', fontsize=12)
+    plt.axvline(x=5.0, color='r', linestyle='--') 
     plt.legend()
     plt.savefig(output_file_path)
     return plt.show()
@@ -203,45 +207,6 @@ def gaussian_mixture_silhouette(df, model_name, output_file_path):
         gmm = GaussianMixture(n_components=k, random_state=42)
         labels = gmm.fit_predict(df)
         score = silhouette_score(df, labels)
-        sil.append(score)
-
-    optimal_k = k_range[0]
-    max_sil = float('-inf')
-    for i, k in enumerate(k_range):
-        if 2 <= k <= 8 and sil[i] > max_sil:
-            max_sil = sil[i]
-            optimal_k = k
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(k_range, sil, marker='o')
-    plt.xlabel('NÚMERO DE CLUSTERS (k)')
-    plt.ylabel('COEFICIENTE DE SILUETA')
-    plt.axvline(optimal_k, color='r', linestyle='--', label=f'Optimal k = {optimal_k}')
-    plt.title(f'MÉTODO DE COEF. SILUETA - {model_name}', fontsize=12)
-    plt.legend()
-    plt.savefig(output_file_path)
-    plt.close()
-
-    print('Silhouette score visualization saved')
-    return optimal_k
-
-def dbscan_silhouette(df, eps, model_name, output_file_path):
-    """
-    Visualiza el coeficiente de silueta para determinar el número óptimo de clusters.
-    Parameters:
-        df (pd.DataFrame): Dataframe a utilizar.
-        model_name (str): Nombre del modelo a utilizar.
-        output_file_path (str): Path donde se guardará la visualización.
-    Returns:
-        optimal_k (int): Número óptimo de clusters.
-    """
-
-    k_range = range(2, 11)
-    sil = []
-    for k in k_range:
-        dbs = DBSCAN(eps=eps, min_samples=k)
-        dbs.fit(df)
-        score = silhouette_score(df, dbs.labels_)
         sil.append(score)
 
     optimal_k = k_range[0]
