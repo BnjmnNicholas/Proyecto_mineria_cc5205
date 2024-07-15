@@ -106,7 +106,6 @@ def k_means_elbow(df, model_name, output_file_path):
     plt.xlabel('NÚMERO DE CLUSTERS (k)')
     plt.ylabel('INERTIA')
     plt.title(f'MÉTODO DEL CODO - {model_name}', fontsize=12)
-    plt.axvline(x=5.0, color='r', linestyle='--') 
     plt.legend()
     plt.savefig(output_file_path)
     return plt.show()
